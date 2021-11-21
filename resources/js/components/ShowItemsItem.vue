@@ -5,7 +5,7 @@
         class="image"
         :style="
           'background-image: url( ' +
-          (i[i.img_first] && i[i.img_first].length ? i[i.img_first] : '') +
+          (i.img1 && i.img1.length ? i.img1 : '') +
           ') '
         "
       >
@@ -18,37 +18,19 @@
         </span>
       </div>
 
-      <!-- <img v-if="i[i.img_first] && i[i.img_first].length" :scr="i[i.img_first]" />
-    <img v-else-if="i.img1 && i.img1.length" :src="i.img1" />
-    <img v-else-if="i.img2 && i.img2.length" :src="i.img2" /> -->
-      <!-- i.img1 {{ i.img1 }} -->
-
-      <!-- <h3 @click="showItemOpis = !showItemOpis">{{ i.id }} {{ i.name }}</h3> -->
       <h3>{{ i.id }} {{ i.name }}</h3>
       <p>
-        <!-- status_order: {{ i.status_order }} -->
-        <!-- <br /> -->
-        Price: {{ i.price }}
+        Цена: {{ i.price }}
       </p>
 
       <!-- <div v-if="showItemOpis">
-        {{ i }}
+          {{ i }}
       </div> -->
     </span>
   </div>
 </template>
 
 <script>
-// import UpcomingBookingCallsInformer from "../components/UpcomingBookingCallsInformerComponent.vue";
-// import BoomsInformer from "../components/BoomsInformerGridComponent.vue";
-// // import Booms2Informer from "./../components/BoomsInformerGrid2Component.vue";
-// import Booms3Informer from "../components/BoomsInformerGrid3Component.vue";
-// import NotesModal from "../components/NotesModalComponent.vue";
-// import ModalTransferCloser from "../common/ModalTransferToCloserComponent.vue";
-// import IndexOptionsComponent from "../components/IndexOptionsComponent.vue";
-
-// import fdd from './../modules/VitrinItems.ts'
-// import VitrinItems from "./../modules/VitrinItems.ts";
 
 export default {
   props: {
@@ -60,10 +42,6 @@ export default {
       showItemOpis: false,
     };
   },
-
-  // const getUserRepositories = async () => {
-  //     repositories = await fetchUserRepositories(props.user)
-  //   }
 
   components: {},
 

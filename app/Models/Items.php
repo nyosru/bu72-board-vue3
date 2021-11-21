@@ -73,37 +73,36 @@ class Items extends Model
             ->join('cats', function ($join) use ($cat_id) {
 
                 $join
-                    // ->where('tmoffer_company_subject.tmf_subject_id', '=', $user)
-
                     ->on('items.cat_id', '=', 'cats.id')
-
-                    // ->where('cats.id', '=', $cat_id )
-                    // ->orWhere('cats.cat_id_up', '=', $cat_id )
-
-                    // ->orWhereIn('cats.id', DB::table('cats as c1')->select('c1.id')->whereNotNull('c1.cat_id_up')->where('c1.cat_id_up', '=', $cat_id) )
-                    // ->orWhereIn( 'cats.id', DB::table('cats as c1')->select('id')->where( 'c1.cat_id_up' , '=' , $cat_id ) )
                     ->where(function ($query) use ($cat_id) {
                         $query
-                        ->where('cats.cat_id_up', '=', $cat_id )
-                        ->orWhere('cats.id', '=', $cat_id )
-                        // ->orWhereIn('cats.id', DB::table('cats as c1')->select('c1.id')->whereNotNull('c1.cat_id_up')->where('c1.cat_id_up', '=', $cat_id) )
-                        //     // ->where('title', '<>', 'Admin')
-                        ;
-                    })
-                ;
+
+                            // смотрим ниже каталог ( 1 шаг)
+                            ->where('cats.cat_id_up', '=', $cat_id)
+
+                            // смотрим в текущем каталоге
+                            ->orWhere('cats.id', '=', $cat_id)
+
+                            // смотрим на 3 уровня каталогов в низ
+                            ->orWhereIn(
+                                'cats.id',
+                                DB::table('cats as c1')
+                                    ->where('c1.cat_id_up', '=', $cat_id)
+                                    ->join('cats as c2', function ($join) {
+                                        $join
+                                            ->on('c2.cat_id_up', '=', 'c1.id');
+                                    })
+                                    ->select('c2.id')
+
+                            );
+                    });
             })
 
-
-            // ->distinct()
-
             ->addSelect(
-            //     // "items.id",
                 "items.*",
-            //     // "items.id",
-            //     // "items.name",
             )
 
-            // ->orderBy('items.date', 'DESC')
+            ->orderBy('items.date', 'DESC')
             ->groupBy('items.id')
 
             // ->groupBy('items.created_at')
@@ -243,7 +242,7 @@ class Items extends Model
             //         . ' ELSE \'img1\' END as img_first '
             // ))
 
-            ;
+        ;
     }
 
     public function scopeItem($query, int $item_id = 0)
@@ -258,7 +257,7 @@ class Items extends Model
             //         ->on('tmoffer_company_subject.tmoffer_id', '=', 'tmoffer.id');
             // })
 
-            ->where('items.id','=', $item_id )
+            ->where('items.id', '=', $item_id)
 
             // ->join('cats', function ($join) use ($cat_id) {
             //     $join

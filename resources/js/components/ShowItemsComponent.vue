@@ -56,8 +56,13 @@
       </div>
     </div>
 
-    <div v-if="loadingItems" style="padding: 10%;">.. загружаю предложения ..</div>
-    <template v-else-if="show && show.length" >
+    <div v-if="loadingItems" style="padding: 3%">
+      <!-- .. загружаю предложения .. -->
+      <br />
+      <br />
+      <div class="blink" v-for="i in 20" :key="i">&nbsp;</div>
+    </div>
+    <template v-else-if="show && show.length">
       <br />
       <linkPages :itemsKolvo="show1.length ?? 0" />
       <br />
@@ -68,7 +73,12 @@
       <br />
       <br />
     </template>
-    <div v-else style="padding: 10%;">ещё нет предложений, <router-link class="nav-link" xclass="xnav-link xpx-3" :to="{ name: 'add-item' }">добавте первое!</router-link></div>
+    <div v-else style="padding: 10%">
+      ещё нет предложений,
+      <router-link xclass="nav-link" xxclass="xnav-link xpx-3" :to="{ name: 'add-item' }"
+        >добавте первое!</router-link
+      >
+    </div>
   </div>
 </template>
 
@@ -189,4 +199,40 @@ export default {
 };
 </script>
 
-<style lang="scss"></style>
+<style lang="scss">
+.blink {
+  width: 180px;
+  height: 120px;
+  margin-right: 10px;
+  margin-bottom: 10px;
+  display: inline-block;
+  background-color: rgba(0, 0, 0, 0.1);
+
+  animation-name: blinker;
+  animation-iteration-count: infinite;
+  animation-timing-function: cubic-bezier(1, 0, 0, 1);
+  animation-duration: 3s;
+  -webkit-animation-name: blinker;
+  -webkit-animation-iteration-count: infinite;
+  -webkit-animation-timing-function: cubic-bezier(1, 0, 0, 1);
+  -webkit-animation-duration: 3s;
+}
+
+@keyframes blinker {
+  from {
+    opacity: 0.4;
+  }
+  to {
+    opacity: 0.7;
+  }
+}
+
+@-webkit-keyframes blinker {
+  from {
+    opacity: 0.7;
+  }
+  to {
+    opacity: 0.4;
+  }
+}
+</style>
