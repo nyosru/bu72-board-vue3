@@ -9,6 +9,7 @@
           ') '
         "
       >
+
         <span class="status">
           {{ i.status_order == "sell" ? "Продаю" : "" }}
           {{ i.status_order == "buy" ? "Хочу купить" : "" }}
@@ -16,9 +17,11 @@
           {{ i.status_order == "arenda" ? "Сдаю в аренду" : "" }}
           {{ i.status_order == "arenda_search" ? "Хочу взять в аренду" : "" }}
         </span>
+
       </div>
 
       <h3>{{ i.id }} {{ i.name }}</h3>
+
       <p>
         Цена: {{ i.price }}
       </p>
@@ -26,6 +29,7 @@
       <!-- <div v-if="showItemOpis">
           {{ i }}
       </div> -->
+
     </span>
   </div>
 </template>

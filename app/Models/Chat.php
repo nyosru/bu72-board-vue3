@@ -37,40 +37,50 @@ class Chat extends Model
             })
 
             // ->addSelect('vitrin-chats.*')
-            ->orderBy('vitrin-chats.created_at', 'ASC')
-
-            ;
+            ->orderBy('vitrin-chats.created_at', 'ASC');
     }
 
     // получаем список чатов
     public function scopeListChatUsers($query, int $room_id)
     {
-
         return $query
 
             ->where('vitrin-chats.room_id', '=', $room_id)
 
-            // ->addSelect( DB::raw('') )
-            // ->join('cats', function ($join) use ($cat_id) {
-            //     $join
-            //         // ->where('tmoffer_company_subject.tmf_subject_id', '=', $user)
-            //         ->on('items.cat_id', '=', 'cats.id')
-            //         ->where('cats.id', '=', $cat_id)
-            //         // ->orWhere()
-            //     ;
-            // })
+            ->join('items as chat', function ($join) {
+                $join
+                    // ->where('tmoffer_company_subject.tmf_subject_id', '=', $user)
+                    ->on('chat.id', '=', 'vitrin-chats.room_id')
+                    // ->where('cats.id', '=', $cat_id)
+                    // ->where('vitrin-chats.writer_id', '!=', 'chat.autor_id')
+                    // ->orWhere()
+                ;
+            })
+            // ->where('vitrin-chats.writer_id', '!=', 'items.autor_id')
+
+            ->addSelect(
+                'vitrin-chats.room_id',
+                'chat.autor_id'
+            )
+
+            ->leftJoin('users as u1', function ($join) {
+                $join
+                    // ->where('tmoffer_company_subject.tmf_subject_id', '=', $user)
+                    ->on('u1.id', '=', 'vitrin-chats.writer_id')
+                    // ->where('u1.id', '!=', 'items.autor_id')
+                    // ->where('cats.id', '=', $cat_id)
+                    // ->orWhere()
+                ;
+            })
+            ->addSelect(
+                'vitrin-chats.writer_id',
+                'u1.socset as writer_ss',
+                'u1.name as writer_name'
+            )
 
             ->groupBy('vitrin-chats.writer_id')
-            ->groupBy('vitrin-chats.to_user_id')
-
-            // ->where(function ($query) use ($writer_id) {
-            //     $query
-            //         ->where('vitrin-chats.writer_id', '=', $writer_id)
-            //         ->orWhere('vitrin-chats.to_user_id', '=', $writer_id);
-            // })
-            // ->addSelect('vitrin-chats.*')
-            ->orderBy('vitrin-chats.created_at', 'ASC')
-            ;
+            // ->orderBy('vitrin-chats.created_at', 'ASC')
+        ;
     }
 
     // public function scopeUserName($query)

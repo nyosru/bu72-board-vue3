@@ -56,7 +56,12 @@ const server = app.listen(`${port}`, function () {
     console.log(`Server started on port ${port}`);
 });
 
+// const helmet = require("helmet");
+// app.use(helmet.referrerPolicy({ policy: "strict-origin-when-cross-origin" }));
+
 const whitelist = [
+    "https://bu72.ru:4008",
+    "http://bu72.ru:4008",
     "https://bu72.ru",
     "http://bu72.ru",
     "https://dev.bu72.ru",
@@ -68,13 +73,16 @@ const whitelist = [
 ];
 
 const io = require("socket.io")(server, {
+    // origins: "*:*",
+    // cors: true,
     cors: {
-        // origin: '*',
+        // origin: "*",
         // origin: "https://bu72.ru:4008",
         // origin: [
         // "http://bu72.ru",
         // "http://xn--72-9kc6e.xn--p1ai",
         // ],
+
         origin: function (origin, callback) {
             if (whitelist.indexOf(origin) > -1) {
                 callback(null, true);
@@ -83,10 +91,63 @@ const io = require("socket.io")(server, {
             }
         },
         methods: ["GET", "POST", "OPTIONS"],
+        // что то непонятное ... нужно или нет 211123
+        // credentials: true,
     },
 });
 
+// io.set("origins", "*:*");
+
 // var fetch = require("node-fetch");
+
+async function getUserInChat(socket, room) {
+    console.log("getUserInChat( room ) {", room);
+
+    let return_data = "";
+
+    var http = require("http");
+
+    // An object of options to indicate where to post to
+    var post_options = {
+        host: "bu72.ru",
+        port: "80",
+        // path: "/api-chat/get",
+        path: "/api-chat/list_users/" + room,
+        // method: "GET",
+        agent: false,
+        // headers: {
+        //     "Content-Type": "application/x-www-form-urlencoded",
+        //     "Content-Length": Buffer.byteLength(post_data),
+        // },
+    };
+
+    // Set up the request
+    await http.get(post_options, (res) => {
+        res.setEncoding("utf8");
+        // return_data = res;
+        // console.log('res', res);
+        res.on("data", function (chunk) {
+            // console.log(7);
+            console.log("77 Response: " + chunk);
+            // console.log(7);
+            // return chunk.res;
+
+            let ee = JSON.parse(chunk);
+
+            socket.broadcast.to(room).emit("list-users-chat", ee.res);
+            socket.emit("list-users-chat", ee.res);
+
+            // console.log(7);
+            // console.log("77 финиш отправки в сокет");
+            // console.log(7);
+            // console.log(7);
+        });
+    });
+
+    // console.log(777777, return_data, 888);
+    // console.log(777777, 999);
+    // return return_data;
+}
 
 // function getValue() {
 //     // return {
@@ -118,6 +179,8 @@ setInterval(() => {
     console.log(11);
 }, 60 * 1000);
 
+let res1 = "";
+
 io.on("connection", (socket) => {
     console.log("A user connected");
 
@@ -131,9 +194,12 @@ io.on("connection", (socket) => {
     // }, 60 * 1000);
 
     // входим в комнату
-    socket.on("joinroom", function (data) {
+    socket.on("joinroom", async function (data) {
         console.log("joinroom", data);
-        socket.join(data);
+        await socket.join(data);
+
+        // когда подключаемся к комнате, загружаем список участников чата (видно только автору обьявления)
+        getUserInChat(socket, data);
     });
 
     socket.on("creat-room", (arg) => {
@@ -152,87 +218,103 @@ io.on("connection", (socket) => {
 
         console.log("send_msg", arg.msg); // world
 
-        var querystring = require("querystring");
-        var http = require("http");
+        if (!arg.msg.msg || !arg.msg.msg.length) {
+            return false;
+        }
 
-        // Build the post string from an object
-        var post_data = querystring.stringify(
-            arg.msg
-            // {
-            // compilation_level: "ADVANCED_OPTIMIZATIONS",
-            // output_format: "json",
-            // output_info: "compiled_code",
-            // warning_level: "QUIET",
-            // // js_code: codestring,
-            // }
-        );
+            var http = require("http");
 
-        console.log("post_data", post_data);
+var querystring = require("querystring");
 
-        // An object of options to indicate where to post to
-        var post_options = {
-            host: "bu72.ru",
-            port: "80",
-            path: "/api-chat/add_msg",
-            method: "POST",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-                "Content-Length": Buffer.byteLength(post_data),
-            },
-        };
+            // Build the post string from an object
 
-        // Set up the request
-        var post_req = http.request(post_options, function (res) {
-            res.setEncoding("utf8");
-            res.on("data", function (chunk) {
-                console.log("Response: " + chunk);
+            var post_data = querystring.stringify(
+                arg.msg
+                // {
+                // compilation_level: "ADVANCED_OPTIMIZATIONS",
+                // output_format: "json",
+                // output_info: "compiled_code",
+                // warning_level: "QUIET",
+                // // js_code: codestring,
+                // }
+            );
+
+            console.log("post_data", post_data);
+
+            // An object of options to indicate where to post to
+            var post_options = {
+                host: "bu72.ru",
+                port: "80",
+                path: "/api-chat/add_msg",
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "Content-Length": Buffer.byteLength(post_data),
+                },
+            };
+
+            // Set up the request
+            var post_req = http.request(post_options, function (res) {
+                res.setEncoding("utf8");
+                res.on("data", function (chunk) {
+                    console.log("Response: " + chunk);
+                    console.log(7);
+                    console.log(7);
+                    let re = JSON.parse(chunk);
+                    console.log("Response2: " + re.res.created_at);
+                    console.log(7);
+                    console.log(7);
+                    socket.broadcast
+                        .to(arg.msg.room_id)
+                        // .emit("new-msg", arg);
+                        .emit("new-msg", re.res);
+                    // socket.emit("new-msg", arg);
+                    socket.emit("new-msg", re.res);
+                });
             });
-        });
 
-        // post the data
-        post_req.write(post_data);
-        post_req.end();
+            // post the data
+            post_req.write(post_data);
+            post_req.end();
 
-        console.log("старт отправки в сокет", arg.msg.room_id);
+            console.log("старт отправки в сокет", arg.msg.room_id);
 
-        // console.log('eee',arg);
-        // io.socket.to(arg.room_id).emit("new-msg", arg);
-        // io.to(arg.msg.room_id).emit("new-msg", arg);
-        // socket.to(arg.msg.room_id).emit("new-msg", arg);
-        // socket.emit("new-msg", arg);
+            // console.log('eee',arg);
+            // io.socket.to(arg.room_id).emit("new-msg", arg);
+            // io.to(arg.msg.room_id).emit("new-msg", arg);
+            // socket.to(arg.msg.room_id).emit("new-msg", arg);
+            // socket.emit("new-msg", arg);
 
-        // socket.to(arg.room_id).emit("new-msg", arg);
-        // io.socket.emit("new-msg", arg);
-        // socket.broadcast.to(arg.msg.room_id).emit("new-msg", arg);
+            // socket.to(arg.room_id).emit("new-msg", arg);
+            // io.socket.emit("new-msg", arg);
+            // socket.broadcast.to(arg.msg.room_id).emit("new-msg", arg);
 
-        socket.broadcast.to(arg.msg.room_id).emit("new-msg", arg);
-        socket.emit("new-msg", arg);
+            console.log("финиш отправки в сокет");
 
-        console.log("финиш отправки в сокет");
+            // console.log(arg.test); // world
+            // socket.broadcast.emit("newdata", arg.test );
 
-        // console.log(arg.test); // world
-        // socket.broadcast.emit("newdata", arg.test );
+            // var todo = {
+            //     userId: 123,
+            //     title: "loren impsum doloris",
+            //     completed: false,
+            // };
 
-        // var todo = {
-        //     userId: 123,
-        //     title: "loren impsum doloris",
-        //     completed: false,
-        // };
+            // // fetch("https://jsonplaceholder.typicode.com/todos", {
+            // fetch("http://bu72.ru/api1", {
+            //     method: "POST",
+            //     body: JSON.stringify(todo),
+            //     headers: { "Content-Type": "application/json" },
+            // })
+            //     .then((res) => {
+            //         console.log(111 , res );
+            //         return res.json()
+            //     })
+            //     .then((json) => {
+            //         console.log(222 , json );
+            //         return console.log(json)
+            //     }) ;
 
-        // // fetch("https://jsonplaceholder.typicode.com/todos", {
-        // fetch("http://bu72.ru/api1", {
-        //     method: "POST",
-        //     body: JSON.stringify(todo),
-        //     headers: { "Content-Type": "application/json" },
-        // })
-        //     .then((res) => {
-        //         console.log(111 , res );
-        //         return res.json()
-        //     })
-        //     .then((json) => {
-        //         console.log(222 , json );
-        //         return console.log(json)
-        //     }) ;
     });
 
     io.on("mm", (data) => {

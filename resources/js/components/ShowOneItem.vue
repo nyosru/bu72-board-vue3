@@ -38,27 +38,28 @@
         <br />
         <p v-if="i.status_order != 'free'">Цена: {{ i.price }} р</p>
 
-        <p class="alert alert-warning">
-          сейчас чат работает только на http перейдите по ссылке
-          <a href="http://bu72.ru">http://bu72.ru</a>
-        </p>
-
-        список чатов
-
-        <div v-for="u in chat_list" :key="u.id">
-          {{ u }}
-        </div>
-
-        <super-chat
+        <div
           v-if="
             i.id && i.id > 0 && i.autor_id && i.autor_id > 0 && user_id && user_id > 0
           "
-          :room_id="i.id"
-          :autor_id="i.autor_id"
-          :writer_id="user_id"
-          :to_user_id="777"
-        />
-
+        >
+        <!-- location_protocol {{ location_protocol }} -->
+          <p class="alert alert-warning" v-if="location_protocol == 'https:'">
+            сейчас чат работает только на http перейдите по ссылке
+            <a :href="'http://bu72.ru/c/'+ i.cat_id +'/'+ i.id +'/'">http://bu72.ru/c/{{ i.cat_id }}/{{ i.id }}/</a>
+          </p>
+          <template v-else>
+            <super-chat
+              v-if="
+                i.id && i.id > 0 && i.autor_id && i.autor_id > 0 && user_id && user_id > 0
+              "
+              :room_id="i.id"
+              :autor_id="i.autor_id"
+              :writer_id="user_id"
+              :to_user_id="777"
+            />
+          </template>
+        </div>
         <div v-else-if="user_id == 0" class="alert alert-warning text-center">
           для&nbsp;обмена сообщениями c&nbsp;автором обьявления, нужно войти
           в&nbsp;личный&nbsp;кабинет (сверху&nbsp;справа выберите соц.&nbsp;сеть)
@@ -107,7 +108,8 @@ export default {
   data() {
     return {
       // showItemOpis: false,
-      chat_list: [],
+      chat_list: {},
+      location_protocol: location.protocol,
     };
   },
 
@@ -139,18 +141,7 @@ export default {
       user_id,
     } = User();
 
-    const { getChatUsers , getChatList, chat_list } = Chat();
-
-    onMounted(() => {
-      getChatList(route.params.itemId, user_id.value);
-    });
-
-    onMounted(() => {
-      getChatUsers(route.params.itemId);
-    });
-
     return {
-      chat_list,
       user_id,
       i: item,
       //   imgs,

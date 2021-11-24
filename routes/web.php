@@ -3,6 +3,9 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UloginController;
 use App\Http\Controllers\VitrinController;
+
+use App\Http\Controllers\ChatController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -15,30 +18,21 @@ use App\Http\Controllers\VitrinController;
 */
 
 
-
-
-
-
-
 // Route::get('/', function () {
 //     return view('welcome');
 // });
 
 Auth::routes();
 
+
 // Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
-
-
+// добавляем сообщение в чат историю
 Route::post('/api-chat/add_msg', [ChatController::class, 'api_chat__add_msg']);
-
+// получаем список участников чата в товаре
+Route::get('/api-chat/list_users/{room_id}/{writer_id?}', [ChatController::class, 'api_chat__get_chat_list_users']);
+// тащим историю чата
 Route::get('/api-chat/{room_id}/{writer_id}', [ChatController::class, 'api_chat__get_chat']);
-Route::get('/api-chat/list_users/{room_id}', [ChatController::class, 'api_chat__get_chat_list_users']);
-
-
-
-
-
 
 
 // Auth::routes();

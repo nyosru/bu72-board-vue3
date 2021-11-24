@@ -8,11 +8,6 @@ import axios from "axios";
 
 import io from "socket.io-client";
 
-console.log(333, location.protocol + '//' + location.host);
-
-var socket = io.connect(location.protocol + '//' + location.host + ':4008');
-// var socket = io.connect("http://test.php-cat.com:4000", { transports : ['websocket'] });
-
 const orders = ref({})
 
 // const addItems = (data) => {
@@ -24,6 +19,21 @@ const re = ref([])
 
 const n_room_id = ref(0)
 const to_user_id = ref(0)
+const now_chat_user = ref(0)
+
+console.log(333, location.protocol + '//' + location.host);
+
+// var socket = io.connect(location.protocol + '//' + location.host + ':4008'
+// var socket = io.connect( ':4008'
+var socket = io.connect('http://bu72.ru:4008'
+    // var socket = io.connect(location.protocol + '//' + location.host
+    // , { transports: ['websocket', 'polling'] }
+);
+// var socket = io.connect("http://test.php-cat.com:4000", { transports : ['websocket'] });
+
+
+
+
 
 // const sendMessage = ( autor_id, to_autor_id, msg ) => {
 const sendMessage = (msg, room_id, writer_id, to_user_id = '') => {
@@ -167,11 +177,14 @@ const creatList = (data) => {
 
 const MessageChannel = ref([]);
 
+
 socket.on("new-msg", (fetchedData) => {
 
     // if (fetchedData.msg.room_id == n_room_id) {
     console.log('получили', fetchedData.msg);
-    MessageChannel.value.push(fetchedData.msg);
+    console.log('получили', fetchedData);
+    // MessageChannel.value.push(fetchedData.msg);
+    MessageChannel.value.push(fetchedData);
 
     const objDiv = document.getElementById("chat_div");
     objDiv.scrollTop = objDiv.scrollHeight;
@@ -181,6 +194,53 @@ socket.on("new-msg", (fetchedData) => {
     // }
 
 });
+
+const writerInChat = ref({})
+
+
+const writerInChatNames = ref({})
+
+
+socket.on("list-users-chat", (fetchedData) => {
+
+    // console.log(99);
+    // console.log('получили list-users-chat', fetchedData);
+    writerInChat.value = fetchedData;
+    // console.log('222', JSON.parse(fetchedData) );
+    writerInChatNames.value = [];
+    fetchedData.forEach((item, index, array) => {
+        // alert(`${item} имеет позицию ${index} в ${array}`);
+        writerInChatNames.value[item.writer_id] = item.writer_name;
+    });
+
+});
+
+const getNameUser = (id) => {
+
+    if (writerInChatNames.value[id] && writerInChatNames.value[id].length) {
+        console.log( 111 , writerInChatNames.value[id] )
+        return writerInChatNames.value[id]
+    }
+    // else {
+    //     writerInChatNames.value[id] = writerInChat.value.find(item => item.writer_id = id).writer_name
+    //     console.log( 222 , writerInChatNames.value[id] )
+    //     return writerInChatNames.value[id]
+    // }
+    return '';
+};
+
+// const e = writerInChat.value.find(item => item.writer_id = id).writer_name;
+//     console.log('e',e, 'a', id);
+
+//     return e.writer_name;
+        // если true - возвращается текущий элемент и перебор прерывается
+        // если все итерации оказались ложными, возвращается undefined
+// }
+
+
+
+
+
 
 
 socket.on("newdata", (fetchedData) => {
@@ -247,13 +307,13 @@ const getChatList = async (room_id, writer_id) => {
 }
 
 
-const getChatUsers = async (room_id) => {
+const getChatUsers = async (room_id, writer_id) => {
 
-    console.log('getChatUsers', room_id );
+    console.log('getChatUsers', room_id, writer_id);
 
     await axios
         .get(
-            "/api-chat/list_users/" + room_id
+            "/api-chat/list_users/" + room_id + '/' + writer_id
         )
         .then((response) => {
 
@@ -287,7 +347,7 @@ const goToRoom = (room_id) => {
 
     socket.emit('joinroom', room_id);
     // MessageChannel.value = [];
-}
+};
 
 // watchEffect(() => {
 //     creatList(re1.value)
@@ -295,6 +355,12 @@ const goToRoom = (room_id) => {
 
 export default function Chat() {
     return {
+        // поиск имени по номеру пользователя
+        // getNameUser(nn)
+        getNameUser,
+        // с кем сейчас чат
+        now_chat_user,
+        writerInChat,
         getChatUsers,
         to_user_id,
         getChatList,

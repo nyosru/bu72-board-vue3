@@ -74,10 +74,10 @@
       <br />
     </template>
     <div v-else style="padding: 10%">
-      ещё нет предложений,
-      <router-link xclass="nav-link" xxclass="xnav-link xpx-3" :to="{ name: 'add-item' }"
-        >добавте первое!</router-link
-      >
+      ещё нет обьявлений,
+      <router-link xclass="nav-link" xxclass="xnav-link xpx-3" :to="{ name: 'add-item' }">
+        добавте первое!
+      </router-link>
     </div>
   </div>
 </template>

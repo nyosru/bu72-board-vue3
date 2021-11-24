@@ -16,9 +16,6 @@ use Illuminate\Support\Facades\DB;
 class ChatController extends Controller
 {
 
-
-
-
     // /**
     //  * Display a listing of the resource.
     //  * @return Renderable
@@ -74,7 +71,7 @@ try {
     }
 
 
-    public function api_chat__get_chat_list_users(Request $request , $room_id )
+    public function api_chat__get_chat_list_users(Request $request , $room_id , $writer_id = '' )
     {
 
         $ret = [
@@ -83,7 +80,7 @@ try {
         ];
 
         // $ret['res'] =
-        $re = Chat::ListChatUsers($room_id )->get();
+        $re = Chat::ListChatUsers( $room_id )->get();
         $ret['res'] = $re->toArray();
 
         return response()->json($ret);

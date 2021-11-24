@@ -3,6 +3,8 @@
 // import moment from 'moment';
 // Vue.prototype.$moment = moment;
 
+import { ref } from "vue";
+
 import axios from "axios";
 
 // import ScreenMobile from "./modules/ScreenMobile.ts";
@@ -53,14 +55,17 @@ export default {
 
     // Vue.onMounted(() => console.log("Mounted from setup!"));
     return {
-    //   thisMobile,
+      //   thisMobile,
     };
   },
 
   data() {
+    const showWarning = ref(true);
+
     return {
-    //   preloader: true,
-    //   show_menu: true,
+      showWarning,
+      //   preloader: true,
+      //   show_menu: true,
       // show_iframe_div: false,
       // show_iframe_div: true,
       // message: "js2 route!",
@@ -87,8 +92,8 @@ export default {
   //     },
   // },
 
-  components:   {
-      TopLinks
+  components: {
+    TopLinks,
     // ShowPayNowPeriod,
     // BoomsInformerV3,
     // Home2
@@ -119,7 +124,6 @@ export default {
 </script>
 
 <style lang="scss">
-
 .nobr {
   white-space: nowrap;
 }
