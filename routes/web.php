@@ -32,6 +32,8 @@ Route::post('/api-chat/add_msg', [ChatController::class, 'api_chat__add_msg']);
 // получаем список участников чата в товаре
 Route::get('/api-chat/list_users/{room_id}/{writer_id?}', [ChatController::class, 'api_chat__get_chat_list_users']);
 // тащим историю чата
+Route::get('/api-chat/history/{room_id}/{writer_id}', [ChatController::class, 'api_chat__get_chat']);
+// тащим историю чата
 Route::get('/api-chat/{room_id}/{writer_id}', [ChatController::class, 'api_chat__get_chat']);
 
 

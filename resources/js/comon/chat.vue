@@ -1,6 +1,6 @@
 <template>
     <div>
-        <small v-if="1 == 2">
+        <small v-if="1 == 1">
             autor_id {{ autor_id }}
             <br />
             writer_id {{ writer_id }}
@@ -22,7 +22,8 @@
                             ? 'btn-info'
                             : 'btn-outline-info'
                     "
-                    @click="now_chat_user = u.writer_id"
+                    xxclick="now_chat_user = u.writer_id"
+                    @click="setChatNow(u.writer_id)"
                 >
                     {{ u.writer_name }}
                     <!-- {{ u.writer_ss }} {{ u.writer_id }} -->
@@ -68,8 +69,6 @@
                 </div>
                 <div>
                     <br />
-                    <br />
-                    <br />
                 </div>
             </div>
 
@@ -103,7 +102,6 @@
             <br />
             <small> MessageChannel: {{ MessageChannel }} </small>
         </div> -->
-
     </div>
 </template>
 
@@ -125,9 +123,7 @@ import {
 import User from "./../modules/User.ts";
 
 import { useRoute } from "vue-router";
-
 import Chat from "./Chat.ts";
-
 import Dater from "./../modules/Dater.ts";
 
 export default {
@@ -184,10 +180,14 @@ export default {
         // });
 
         watchEffect(() => {
-            if (props.autor_id != props.writer_id) {
+            if (
+                now_chat_user.value != props.writer_id &&
+                props.autor_id != props.writer_id
+            ) {
                 now_chat_user.value = props.writer_id;
             }
         });
+
         // watchEffect(() => {
         //   if (route.params.itemId > 0) {
         //     item.value = {};
@@ -217,6 +217,7 @@ export default {
         goToRoom(props.room_id);
 
         return {
+            route,
             getNameUser,
             showDate,
             now_chat_user,
@@ -230,6 +231,7 @@ export default {
     },
 
     methods: {
+
         // scrollToTop(div, data) {
         //   console.log("scrolToTop", div);
         //   const div = this.$refs.chat
@@ -251,6 +253,22 @@ export default {
             sendMessage(msg);
         },
 
+        setChatNow(to_user = "") {
+            console.log("setChatNow", this.autor_id , to_user ?? "x");
+            console.log('route room', this.route.params.itemId );
+            this.now_chat_user = to_user;
+
+            const {
+                // sendMessage,
+                //   MessageChannel
+                goToRoom,
+                getRoomHistory
+            } = Chat();
+            goToRoom( this.route.params.itemId , to_user );
+            getRoomHistory( this.route.params.itemId , to_user );
+
+        },
+
         // setImgShow(img) {
         //   if (this.img_show != img) {
         //     this.img_show = img;
@@ -266,7 +284,6 @@ export default {
 
 <style lang="scss">
 .chat {
-
     .chat-date {
         background-color: rgba(0, 0, 255, 0.2);
         padding: 2px 4px;

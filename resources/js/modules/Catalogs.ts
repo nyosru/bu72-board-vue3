@@ -41,6 +41,7 @@ const getCatalogs = async () => {
 
 };
 
+
 const clearCats = (nomStart) => {
     let e2 = 9;
     for (let e = nomStart; e <= 7; e++) {
@@ -49,6 +50,7 @@ const clearCats = (nomStart) => {
         eval('cat' + e + '.value = \'\';');
     }
 };
+
 
 const filtrCatsShow = () => {
 

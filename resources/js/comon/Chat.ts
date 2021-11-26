@@ -18,6 +18,16 @@ const re1 = ref([])
 const re = ref([])
 
 const n_room_id = ref(0)
+
+
+
+// номер текущего чата
+const now_room_id = ref(0)
+// номер текущего пользователя чата
+const now_user_id = ref(0)
+
+
+
 const to_user_id = ref(0)
 const now_chat_user = ref(0)
 
@@ -99,6 +109,16 @@ const sendMessage = (msg, room_id, writer_id, to_user_id = '') => {
 
 }
 
+
+// скролим чат вниз
+const chatScrollDown = () => {
+
+    setTimeout(() => {
+        const objDiv = document.getElementById("chat_div");
+        objDiv.scrollTop = objDiv.scrollHeight;
+    }, 1000);
+
+}
 
 
 const creatList = (data) => {
@@ -186,8 +206,9 @@ socket.on("new-msg", (fetchedData) => {
     // MessageChannel.value.push(fetchedData.msg);
     MessageChannel.value.push(fetchedData);
 
-    const objDiv = document.getElementById("chat_div");
-    objDiv.scrollTop = objDiv.scrollHeight;
+    chatScrollDown();
+    // const objDiv = document.getElementById("chat_div");
+    // objDiv.scrollTop = objDiv.scrollHeight;
 
     // } else {
     //     console.log('получили другая комната', fetchedData.msg);
@@ -218,7 +239,7 @@ socket.on("list-users-chat", (fetchedData) => {
 const getNameUser = (id) => {
 
     if (writerInChatNames.value[id] && writerInChatNames.value[id].length) {
-        console.log( 111 , writerInChatNames.value[id] )
+        console.log(111, writerInChatNames.value[id])
         return writerInChatNames.value[id]
     }
     // else {
@@ -233,8 +254,8 @@ const getNameUser = (id) => {
 //     console.log('e',e, 'a', id);
 
 //     return e.writer_name;
-        // если true - возвращается текущий элемент и перебор прерывается
-        // если все итерации оказались ложными, возвращается undefined
+// если true - возвращается текущий элемент и перебор прерывается
+// если все итерации оказались ложными, возвращается undefined
 // }
 
 
@@ -261,6 +282,21 @@ socket.on("newdata", (fetchedData) => {
 
 });
 
+socket.on("chat-history", (fetchedData) => {
+    // this.fillData(fetchedData);
+    console.log("chat-history", fetchedData);
+    // MessageChannel.value.push(fetchedData);
+    MessageChannel.value = fetchedData;
+
+
+    chatScrollDown();
+    // setTimeout(() => {
+    //     const objDiv = document.getElementById("chat_div");
+    //     objDiv.scrollTop = objDiv.scrollHeight;
+    // }, 1000);
+
+})
+
 socket.on("chat-message2", (fetchedData) => {
     // this.fillData(fetchedData);
     console.log("chat-message2");
@@ -275,6 +311,11 @@ socket.on("chat-message2", (fetchedData) => {
     // addItem(fetchedData);
 
 });
+
+
+const sendRequestOnGetHistoryChat = async (room_id, writer_id) => {
+}
+
 
 const getChatList = async (room_id, writer_id) => {
 
@@ -337,17 +378,44 @@ const getChatUsers = async (room_id, writer_id) => {
 
 }
 
-const goToRoom = (room_id) => {
 
-    n_room_id.value = room_id;
+const goToRoom = (room_id, user_id = '') => {
+
+    now_room_id.value = room_id;
+    now_user_id.value = user_id ?? '';
 
     // socket.of("/")adapter.on('creat-room', (room_id) => { }
     // socket.of("/").adapter.on("create-room", (room_id) => { console.log(`room ${room_id} was created`); });
     // socket.emit("creat-room", { room: room_id });
 
-    socket.emit('joinroom', room_id);
+    socket.emit('joinroom', { room: now_room_id.value, user: now_user_id.value });
     // MessageChannel.value = [];
+
 };
+
+const getRoomHistory = (room_id, user_id = '') => {
+
+    console.log('getRoomHistory', room_id, user_id);
+
+
+    if (user_id == '') {
+        return;
+    }
+
+    now_room_id.value = room_id;
+    now_user_id.value = user_id ?? '';
+
+    // socket.of("/")adapter.on('creat-room', (room_id) => { }
+    // socket.of("/").adapter.on("create-room", (room_id) => { console.log(`room ${room_id} was created`); });
+    // socket.emit("creat-room", { room: room_id });
+
+    socket.emit('getRoomHistory', { room: now_room_id.value, user: now_user_id.value });
+    // MessageChannel.value = [];
+
+};
+
+
+
 
 // watchEffect(() => {
 //     creatList(re1.value)
@@ -355,6 +423,9 @@ const goToRoom = (room_id) => {
 
 export default function Chat() {
     return {
+        // запрос истории чата
+        // getRoomHistory(room_id, user_id = '')
+        getRoomHistory,
         // поиск имени по номеру пользователя
         // getNameUser(nn)
         getNameUser,
