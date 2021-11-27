@@ -1,6 +1,6 @@
 <template>
     <div>
-        <small v-if="1 == 1">
+        <small v-if="1 == 2">
             autor_id {{ autor_id }}
             <br />
             writer_id {{ writer_id }}
@@ -11,32 +11,24 @@
             <br />
         </small>
 
-        <div v-if="autor_id == writer_id" class="mb-2">
+        <div v-if="autor_id == writer_id" class="list_chat_links_user">
             чат c:
-            <span v-for="u in writerInChat" :key="u.id">
-                <button
+            <span v-for="u in writerInChat" :key="u.id" class="chat_link_user">
+                <a
+                    href="#"
                     v-if="u.writer_id != u.autor_id"
-                    class="btn btn-sm btn-ligth m-2"
+                    class="xbtn xbtn-sm xbtn-ligth xm-2 xmr-2 xp-1"
                     :class="
-                        now_chat_user == u.writer_id
-                            ? 'btn-info'
-                            : 'btn-outline-info'
+                        now_chat_user == u.writer_id ? 'active' : ''
                     "
                     xxclick="now_chat_user = u.writer_id"
-                    @click="setChatNow(u.writer_id)"
+                    @click.prevent="setChatNow(u.writer_id)"
                 >
                     {{ u.writer_name }}
                     <!-- {{ u.writer_ss }} {{ u.writer_id }} -->
-                </button>
+                </a>
             </span>
         </div>
-        <!-- <div v-else>writerInChat empty</div> -->
-
-        <!-- <br clear="all" /> -->
-        <!-- <br />
-        now_chat_user {{ now_chat_user }}
-        <br />
-        <br /> -->
 
         <template v-if="now_chat_user > 0">
             <div
@@ -61,11 +53,8 @@
                         {{ getNameUser(m.writer_id ?? m.to_user_id) }}
                     </small>
 
-                    <!-- <small> to u#{{ m.to_user_id }}</small> -->
-                    <!-- <small>room{{ m.room_id }} </small> -->
                     <br />
                     {{ m.msg }}
-                    <!-- {{ m.user }} | {{ m.text }} -->
                 </div>
                 <div>
                     <br />
@@ -79,7 +68,10 @@
                         room_id: room_id,
                         writer_id: writer_id,
                         to_user_id:
-                            writer_id == now_chat_user ? 0 : now_chat_user,
+                            writer_id == now_chat_user
+                                ? autor_id
+                                : now_chat_user,
+                        autor_id: autor_id,
                     })
                 "
             >
@@ -203,18 +195,33 @@ export default {
         // });
         // const { user_id } = User();
 
-        const { getChatUsers, getChatList, chat_list } = Chat();
+        const {
+            // getChatUsers,
+            // getChatList,
+            setChatNow,
+            chat_list,
+        } = Chat();
 
-        onMounted(() => {
-            //   getChatList(route.params.itemId, props.writer_id );
-            getChatList(props.room_id, props.writer_id);
-        });
+        // onMounted(() => {
+        //     //   getChatList(route.params.itemId, props.writer_id );
+        //     getChatList(props.room_id, props.writer_id);
+        // });
 
-        onMounted(() => {
-            getChatUsers(props.room_id, props.writer_id);
-        });
+        // onMounted(() => {
+        //     getChatUsers(props.room_id, props.writer_id);
+        // });
+
+        // watchEffect(() => {
+        //     // getChatUsers(props.room_id, props.writer_id);
+        //     // this.setChatNow(props.writer_id);
+        //     setChatNow(now_chat_user.value);
+        // });
 
         goToRoom(props.room_id);
+
+        if (props.writer_id != props.autor_id) {
+            setChatNow(props.room_id, props.writer_id);
+        }
 
         return {
             route,
@@ -231,7 +238,6 @@ export default {
     },
 
     methods: {
-
         // scrollToTop(div, data) {
         //   console.log("scrolToTop", div);
         //   const div = this.$refs.chat
@@ -254,19 +260,19 @@ export default {
         },
 
         setChatNow(to_user = "") {
-            console.log("setChatNow", this.autor_id , to_user ?? "x");
-            console.log('route room', this.route.params.itemId );
+            console.log("setChatNow", this.autor_id, to_user ?? "x");
+            console.log("route room", this.route.params.itemId);
             this.now_chat_user = to_user;
 
             const {
                 // sendMessage,
-                //   MessageChannel
+                MessageChannel,
                 goToRoom,
-                getRoomHistory
+                getRoomHistory,
             } = Chat();
-            goToRoom( this.route.params.itemId , to_user );
-            getRoomHistory( this.route.params.itemId , to_user );
-
+            MessageChannel.value = {};
+            goToRoom(this.route.params.itemId, to_user);
+            getRoomHistory(this.route.params.itemId, to_user);
         },
 
         // setImgShow(img) {
@@ -282,7 +288,33 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scope>
+
+.list_chat_links_user {
+    line-height: 26px;
+    .chat_link_user {
+        cursor: pointer;
+        margin-right: 5px;
+        display: inline-block;
+        a {
+            display: inline-block;
+            padding: 2px 5px;
+            word-break: break-all;
+            background-color: rgba(0,0,255,0.1);
+            border-radius: 2px;
+            text-decoration: none;
+        }
+        a.active:HOVER,
+        a.active{
+            background-color: rgba(0,0,255,0.5);
+            color: white;
+        }
+        a:HOVER{
+            background-color: rgba(0,0,255,0.2);
+        }
+    }
+}
+
 .chat {
     .chat-date {
         background-color: rgba(0, 0, 255, 0.2);

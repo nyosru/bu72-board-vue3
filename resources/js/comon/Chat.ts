@@ -46,10 +46,10 @@ var socket = io.connect('http://bu72.ru:4008'
 
 
 // const sendMessage = ( autor_id, to_autor_id, msg ) => {
-const sendMessage = (msg, room_id, writer_id, to_user_id = '') => {
+const sendMessage = (msg, room_id, writer_id, to_user_id = '' , autor_id ) => {
 
-    console.log('send_msg', msg, room_id, writer_id, to_user_id);
-    socket.emit("send_msg", { msg: msg, room_id: room_id, writer_id: writer_id, to_user_id: to_user_id });
+    console.log('send_msg', msg, room_id, writer_id, to_user_id, autor_id);
+    socket.emit("send_msg", { msg: msg, room_id: room_id, writer_id: writer_id, to_user_id: to_user_id, autor_id: autor_id });
     console.log('send_msg отправлен');
 
     //     // socket.on('connect', function () {
@@ -110,13 +110,14 @@ const sendMessage = (msg, room_id, writer_id, to_user_id = '') => {
 }
 
 
+
 // скролим чат вниз
 const chatScrollDown = () => {
 
     setTimeout(() => {
         const objDiv = document.getElementById("chat_div");
         objDiv.scrollTop = objDiv.scrollHeight;
-    }, 1000);
+    }, 500);
 
 }
 
@@ -384,6 +385,9 @@ const goToRoom = (room_id, user_id = '') => {
     now_room_id.value = room_id;
     now_user_id.value = user_id ?? '';
 
+    console.log( 'goToRoom' , room_id, user_id );
+
+
     // socket.of("/")adapter.on('creat-room', (room_id) => { }
     // socket.of("/").adapter.on("create-room", (room_id) => { console.log(`room ${room_id} was created`); });
     // socket.emit("creat-room", { room: room_id });
@@ -393,27 +397,52 @@ const goToRoom = (room_id, user_id = '') => {
 
 };
 
-const getRoomHistory = (room_id, user_id = '') => {
+const getRoomHistory = async (room_id, user_id = '') => {
 
     console.log('getRoomHistory', room_id, user_id);
-
 
     if (user_id == '') {
         return;
     }
 
     now_room_id.value = room_id;
-    now_user_id.value = user_id ?? '';
+    now_user_id.value = user_id;
 
-    // socket.of("/")adapter.on('creat-room', (room_id) => { }
-    // socket.of("/").adapter.on("create-room", (room_id) => { console.log(`room ${room_id} was created`); });
-    // socket.emit("creat-room", { room: room_id });
-
-    socket.emit('getRoomHistory', { room: now_room_id.value, user: now_user_id.value });
+    // socket.emit('getRoomHistory', { room: now_room_id.value, user: now_user_id.value });
     // MessageChannel.value = [];
+
+    MessageChannel.value = {};
+
+    await axios
+        .get(
+            "/api-chat/history/" + room_id + "/" + user_id
+        )
+        .then((response) => {
+            // console.log('getChatUsers res', response.data);
+            MessageChannel.value = response.data.res;
+        })
+        .catch((error) => {
+            console.log(error);
+        });
+
+    chatScrollDown();
 
 };
 
+
+
+const setChatNow = (room_id, to_user = "") => {
+
+    console.log("setChatNow", room_id, to_user ?? "x");
+    // console.log('route room', this.route.params.itemId);
+    now_chat_user.value = to_user;
+
+    MessageChannel.value = {};
+    // goToRoom(room_id, to_user);
+    goToRoom(room_id, to_user);
+    getRoomHistory(room_id, to_user);
+
+}
 
 
 
@@ -423,6 +452,8 @@ const getRoomHistory = (room_id, user_id = '') => {
 
 export default function Chat() {
     return {
+        // переход в чат ( тащим историю )
+        setChatNow,
         // запрос истории чата
         // getRoomHistory(room_id, user_id = '')
         getRoomHistory,

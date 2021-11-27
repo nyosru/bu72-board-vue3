@@ -1,63 +1,15 @@
-// "use strict";
-
-// const express = require("express");
-// const io = require("socket.io");
-
-// class Server {
-//     constructor() {
-//         this.port = 4008;
-//         this.app = express();
-//         this.server = this.app.listen(this.port, () => {
-//             console.log(`server running http://bu72.ru:${this.port}`);
-//         });
-//         this.io = io(this.server);
-//     }
-// }
-
-// new Server();
-// Header set Access - Control - Allow - Origin "test.php-cat.com"
-
-console.log(`Server started on /public`);
+// console.log(`Server started on /public`);
 
 //server.js
 
 const express = require("express");
 const app = express();
 
-// app.use(function (req, res, next) {
-//     res.header("Access-Control-Allow-Origin", "*");
-//     res.header(
-//         "Access-Control-Allow-Headers",
-//         "Origin, X-Requested-With, Content-Type, Accept"
-//     );
-//     res.header(
-//         "Access-Control-Allow-Methods",
-//         "GET"
-//     );
-//     next();
-// });
-
-// app.use(function (req, res, next) {
-// //     // res.header("Access-Control-Allow-Origin", "test.php"); // update to match the domain you will make the request from
-//     res.header("Access-Control-Allow-Origin", "*"); // update to match the domain you will make the request from
-//     res.header(
-//         "Access-Control-Allow-Headers",
-//         "Origin, X-Requested-With, Content-Type, Accept"
-//     );
-//     next();
-// });
-
-// const port = 4000;
 const port = 4008;
 
-// const port = 6001;
-
 const server = app.listen(`${port}`, function () {
-    console.log(`Server started on port ${port}`);
+    console.log(`Server started on /public on port ${port}`);
 });
-
-// const helmet = require("helmet");
-// app.use(helmet.referrerPolicy({ policy: "strict-origin-when-cross-origin" }));
 
 const whitelist = [
     "https://bu72.ru:4008",
@@ -91,28 +43,18 @@ const io = require("socket.io")(server, {
             }
         },
         methods: ["GET", "POST", "OPTIONS"],
-        // что то непонятное ... нужно или нет 211123
-        // credentials: true,
     },
 });
-
-// io.set("origins", "*:*");
-
-// var fetch = require("node-fetch");
 
 async function getRoomHistory(socket, room, user) {
     console.log("a f getRoomHistory", room, user);
 
-    //    console.log("getUserInChat( room ) ", room);
-
     let return_data = "";
     var http = require("http");
 
-    //    // An object of options to indicate where to post to
     var req_options = {
         host: "bu72.ru",
         port: "80",
-        //        // path: "/api-chat/get",
         path: "/api-chat/history/" + room + "/" + user,
         //        // method: "GET",
         agent: false,
@@ -125,23 +67,12 @@ async function getRoomHistory(socket, room, user) {
     //    // Set up the request
     await http.get(req_options, (res) => {
         res.setEncoding("utf8");
-        //        // return_data = res;
-        //        // console.log('res', res);
         res.on("data", function (chunk) {
-            //            // console.log(7);
-            console.log("77 Response: " + chunk);
-            //            // console.log(7);
-            //            // return chunk.res;
 
             let ee = JSON.parse(chunk);
-            console.log(777, ee);
-                       socket.broadcast.to(room).emit("chat-history", ee.res);
-                       socket.emit("chat-history", ee.res);
+            socket.broadcast.to(room).emit("chat-history", ee.res);
+            socket.emit("chat-history", ee.res);
 
-            //            // console.log(7);
-            //            // console.log("77 финиш отправки в сокет");
-            //            // console.log(7);
-            //            // console.log(7);
         });
     });
 }
@@ -157,7 +88,6 @@ async function getUserInChat(socket, room) {
     var post_options = {
         host: "bu72.ru",
         port: "80",
-        // path: "/api-chat/get",
         path: "/api-chat/list_users/" + room,
         // method: "GET",
         agent: false,
@@ -170,56 +100,17 @@ async function getUserInChat(socket, room) {
     // Set up the request
     await http.get(post_options, (res) => {
         res.setEncoding("utf8");
-        // return_data = res;
-        // console.log('res', res);
         res.on("data", function (chunk) {
-            // console.log(7);
-            console.log("77 Response: " + chunk);
-            // console.log(7);
-            // return chunk.res;
 
             let ee = JSON.parse(chunk);
 
             socket.broadcast.to(room).emit("list-users-chat", ee.res);
             socket.emit("list-users-chat", ee.res);
 
-            // console.log(7);
-            // console.log("77 финиш отправки в сокет");
-            // console.log(7);
-            // console.log(7);
         });
     });
 
-    // console.log(777777, return_data, 888);
-    // console.log(777777, 999);
-    // return return_data;
 }
-
-// function getValue() {
-//     // return {
-//     //     user_id: 77,
-//     //     count: Math.floor(Math.random() * (50 - 5 + 1)) + 5
-//     // };
-
-//     return [
-//         {
-//             id: 111126,
-//             type: "take_off",
-//             timestamp: 1634627878,
-//             productName: "Кальций d3, 137г",
-//             productCount: -1,
-//             sessionId: "6822d3db-a766-499f-b6ca-b9d6382c94b0",
-//         },
-//         {
-//             id: 111127,
-//             type: "put_on",
-//             timestamp: 1634627917,
-//             productName: "Кальций d3, 137г",
-//             productCount: 1,
-//             sessionId: "6822d3db-a766-499f-b6ca-b9d6382c94b0",
-//         },
-//     ];
-// }
 
 setInterval(() => {
     console.log(11);
@@ -235,16 +126,12 @@ io.on("connection", (socket) => {
         console.log("A user disconnected");
     });
 
-    // setInterval(() => {
-    //     socket.broadcast.emit("newdata", getValue());
-    // }, 60 * 1000);
-
     // входим в комнату
     socket.on("joinroom", async function (data) {
-        console.log(7);
-        console.log(7);
+        // console.log(7);
+        // console.log(7);
         console.log("joinroom", data);
-        console.log(7);
+        // console.log(7);
 
         let ee = data.room + (data.user ? "-" + data.user : "");
 
@@ -285,18 +172,9 @@ io.on("connection", (socket) => {
 
         // Build the post string from an object
 
-        var post_data = querystring.stringify(
-            arg.msg
-            // {
-            // compilation_level: "ADVANCED_OPTIMIZATIONS",
-            // output_format: "json",
-            // output_info: "compiled_code",
-            // warning_level: "QUIET",
-            // // js_code: codestring,
-            // }
-        );
+        var post_data = querystring.stringify(arg.msg);
 
-        console.log("post_data", post_data);
+        // console.log("post_data", post_data);
 
         // An object of options to indicate where to post to
         var post_options = {
@@ -314,18 +192,19 @@ io.on("connection", (socket) => {
         var post_req = http.request(post_options, function (res) {
             res.setEncoding("utf8");
             res.on("data", function (chunk) {
-                console.log("Response: " + chunk);
-                console.log(7);
-                console.log(7);
                 let re = JSON.parse(chunk);
-                console.log("Response2: " + re.res.created_at);
-                console.log(7);
-                console.log(7);
-                socket.broadcast
-                    .to(arg.msg.room_id)
-                    // .emit("new-msg", arg);
-                    .emit("new-msg", re.res);
-                // socket.emit("new-msg", arg);
+                let now_room =
+                    arg.msg.room_id +
+                    "-" +
+                    (arg.msg.writer_id != arg.msg.autor_id
+                        ? arg.msg.writer_id
+                        : arg.msg.to_user_id);
+                console.log("send_msg", "now_room", now_room);
+                console.log("send_msg re", re, arg.msg);
+
+                socket.join(now_room);
+
+                socket.broadcast.to(now_room).emit("new-msg", re.res);
                 socket.emit("new-msg", re.res);
             });
         });
