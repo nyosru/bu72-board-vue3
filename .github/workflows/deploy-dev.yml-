@@ -1,4 +1,4 @@
-name: Deploy-dev-777
+name: BU-deploy-front
 
 on:
   push:
