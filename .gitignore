@@ -1,18 +1,9 @@
-/vendor/
-node_modules/
-npm-debug.log
-yarn-error.log
-
-# Laravel 4 specific
-bootstrap/compiled.php
-app/storage/
-
-# Laravel 5 & Lumen specific
-public/storage
-public/hot
-storage/*.key
+node_modules
+*.log*
+.nuxt
+.nitro
+.cache
+.output
 .env
-Homestead.yaml
-Homestead.json
-/.vagrant
-.vscode/sftp.json
+dist
+.DS_Store
