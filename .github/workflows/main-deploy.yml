@@ -10,8 +10,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    # env:
-      
     steps:
 
       - name: git pull on server
