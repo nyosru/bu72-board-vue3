@@ -16,18 +16,18 @@
                             <!-- <NuxtLink class="nav-link active" aria-current="page" to="/cats">Каталог</NuxtLink> -->
                             <NuxtLink class="nav-link active" aria-current="page" to="/cat/0">Каталог</NuxtLink>
                         </li>
-                        <li class="nav-item">
+                        <!-- <li class="nav-item">
                             <NuxtLink class="nav-link active" aria-current="page" to="/posts">Продают</NuxtLink>
-                        </li>
-                        <li class="nav-item">
+                        </li> -->
+                        <!-- <li class="nav-item">
                             <NuxtLink class="nav-link active" aria-current="page" to="/posts">Хотят купить</NuxtLink>
-                        </li>
-                        <li class="nav-item">
+                        </li> -->
+                        <!-- <li class="nav-item">
                             <NuxtLink class="nav-link active" aria-current="page" to="/posts">Сдают в аренду</NuxtLink>
-                        </li>
-                        <li class="nav-item">
+                        </li> -->
+                        <!-- <li class="nav-item">
                             <NuxtLink class="nav-link active" aria-current="page" to="/posts">Хотят взять в арренду</NuxtLink>
-                        </li>
+                        </li> -->
                     </ul>
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0" role="search">
                         <a href="https://php-cat.com" target="_blank" class="btn btn-success">php-cat.com</a>
@@ -44,7 +44,9 @@
 </template>
 
 <script setup>
-console.log(7878);
+
+// console.log(7878);
+
 </script>
 
 <style>
