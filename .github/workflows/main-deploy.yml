@@ -20,7 +20,6 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           # port: ${{ secrets.PORT }}
           script: |
-            cd www 
             cd ${{ secrets.FOLDER_FRONT_PROD }} 
             git config --global user.email "1@php-cat.com" 
             git config --global user.name "Sergey" 
@@ -84,7 +83,6 @@ jobs:
           username: ${{ secrets.SERVER_USERNAME }}
           password: ${{ secrets.SERVER_PASSWORD }}
           script: |
-            cd www
             cd ${{ secrets.FOLDER_FRONT_PROD }} 
             npm i 
             npm run generate
